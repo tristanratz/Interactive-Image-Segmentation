@@ -1,0 +1,34 @@
+{
+  "title": "Label Studio",
+  "protocol": "http://",
+  "host": "0.0.0.0",
+  "port": 8080,
+  "debug": false,
+  "label_config": "config.xml",
+  "input_path": "tasks.json",
+  "output_dir": "completions",
+  "instruction": "Type some <b>hypertext</b> for label experts!",
+  "allow_delete_completions": true,
+  "templates_dir": "examples",
+  "editor": {
+    "debug": false
+  },
+  "sampling": "sequential",
+  "ml_backends": [
+    {
+      "url": "http://localhost:9090",
+      "name": "Mask RCNN"
+    }
+  ],
+  "task_page_auto_update_timer": 10000,
+  "source": {
+    "name": "Tasks",
+    "type": "tasks-json",
+    "path": "/Users/tristanratz/Development/label-studio/image_polygons_project/tasks.json"
+  },
+  "target": {
+    "name": "Completions",
+    "type": "completions-dir",
+    "path": "/Users/tristanratz/Development/label-studio/image_polygons_project/completions"
+  }
+}
