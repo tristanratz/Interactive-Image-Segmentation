@@ -11,7 +11,7 @@ services:
       - 6379
   server:
     container_name: server
-    build: .
+    build: img_sgm_ml
     environment:
       - MODEL_DIR=/data/models
       - RQ_QUEUE_NAME=default
@@ -26,3 +26,10 @@ services:
     volumes:
       - "./data/server:/data"
       - "./logs:/tmp"
+#  labeltool:
+#    container_name: server
+#    build: img_sgm
+#    ports:
+#      - 8080:8080
+#    volumes:
+#      - "./data/server:/data"

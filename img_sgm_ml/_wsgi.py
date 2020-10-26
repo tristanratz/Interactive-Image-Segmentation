@@ -3,6 +3,8 @@ import argparse
 import logging
 import logging.config
 
+from img_sgm_ml.model import MaskRCNNModel
+
 logging.config.dictConfig({
   "version": 1,
   "formatters": {
@@ -90,7 +92,7 @@ if __name__ == "__main__":
         model = ImageClassifierAPI(**kwargs)
 
     app = init_app(
-        model_class=ImageClassifierAPI,
+        model_class=MaskRCNNModel,
         model_dir=os.environ.get('MODEL_DIR', args.model_dir),
         redis_queue=os.environ.get('RQ_QUEUE_NAME', 'default'),
         redis_host=os.environ.get('REDIS_HOST', 'localhost'),
