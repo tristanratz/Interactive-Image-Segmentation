@@ -8,6 +8,8 @@ RUN pip install -r ${HOME}/requirements.txt
 COPY uwsgi.ini /etc/uwsgi/
 COPY supervisord.conf /etc/supervisor/conf.d/
 
+# mount the checkpoints dir
+
 WORKDIR ${HOME}
 
 # RUN pip install git+https://github.com/heartexlabs/label-studio.git@master

@@ -6,19 +6,23 @@ You get on the fly predictions for the dataset your labeling.
 
 ## Installation
 
-First we have to install label studio.
+First clone the project
 
 ```bash
-pip install label-studio
+git clone --recurse-submodules -j8 git://github.com/tristanratz/bar.git
+```
+
+Then we have to install all dependencies.
+
+```bash
+pip install -r requirements.txt
 ```
 
 Make sure you have docker and docker-compose installed to start the ml module.
 
-## Own data
+Download the pretrained Matterport COCO Model from Matterport https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5
 
-To create own labels for the different 
-
-## Start
+### Run
 
 To start the ML Module change to the ```img-sgm-ml``` folder and execute the following.
 ```bash
@@ -35,6 +39,26 @@ Now you have to label about 70 images. After you are done, change to the model t
 After it finished learning you can continue labeling and should get predictions for your images.
 
 Let the pre-labeling begin...!
+
+## Own data
+
+To create own labels go into ```img-sgm/config.xml``` and enter your labels in the following format
+
+```xml
+<Label value="LABEL_NAME" background="LABEL_COLOR"/>
+```
+e.g.
+```xml
+<Label value="Airplane" background="red"/>
+```
+
+After that add the images you want to label with the following command to the labeling tool:
+
+```bash
+label-studio init -i ./upload/ --input-format image-dir
+```
+
+or import them via the web interface.
 
 ## Disclaimer
 
