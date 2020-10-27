@@ -30,8 +30,6 @@ logging.config.dictConfig({
 })
 
 from label_studio.ml import init_app
-from pytorch_transfer_learning import ImageClassifierAPI
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Label studio')
@@ -105,7 +103,7 @@ if __name__ == "__main__":
 else:
     # for uWSGI use
     app = init_app(
-        model_class=ImageClassifierAPI,
+        model_class=MaskRCNNModel,
         model_dir=os.environ.get('MODEL_DIR', os.path.dirname(__file__)),
         redis_queue=os.environ.get('RQ_QUEUE_NAME', 'default'),
         redis_host=os.environ.get('REDIS_HOST', 'localhost'),

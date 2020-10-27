@@ -1,8 +1,8 @@
 <!-- {"title": "Image segmentation", "category": "image", "complexity": "basic"} -->
 <View>
   <BrushLabels name="tag" toName="img">
-    <Label value="Planet" />
-    <Label value="Moonwalker" background="rgba(255,0,0,0.5)" />
+    <Label value="person" background="rgba(0,255,0,0.2)" />
+    <Label value="cell phone" background="rgba(255,0,0,0.2)" />
   </BrushLabels>
   <Image name="img" value="$image" zoom="true" zoomControl="true" />
 </View>

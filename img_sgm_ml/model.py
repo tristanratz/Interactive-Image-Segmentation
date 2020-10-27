@@ -20,10 +20,10 @@ class MaskRCNNModel(LabelStudioMLBase):
     def __init__(self, **kwargs):
         super(MaskRCNNModel, self).__init__(**kwargs)
 
-        self.from_name = ""
-        self.to_name = ""
-        # self.from_name, self.to_name, self.value, self.classes = get_single_tag_keys(
-        #     self.parsed_label_config, 'BrushLabels', 'Image')
+        #self.from_name = ""
+        #self.to_name = ""
+        self.from_name, self.to_name, self.value, self.classes = get_single_tag_keys(
+             self.parsed_label_config, 'BrushLabels', 'Image')
 
         #weights_path = model.find_last()
         self.config = LabelConfig()
@@ -57,15 +57,18 @@ class MaskRCNNModel(LabelStudioMLBase):
             #     labels.append(self.config.CLASSES[id])
 
             results.append({
-                'from_name': self.from_name,
-                'to_name': self.to_name,
-                'type': 'choices',
-                'value': {
-                    #'brushlabels': prediction["class_ids"],
-                    'brushlabels': [self.config.LABELS[id] for id in prediction["class_ids"]],
-                    "format": "rle",
-                    "rle": [self.binary_mask_to_rle(bm) for bm in prediction["masks"]]
-                }
+                "result": {
+                    'from_name': self.from_name,
+                    'to_name': self.to_name,
+                    'type': 'choices',
+                    'value': {
+                        #'brushlabels': prediction["class_ids"],
+                        'brushlabels': [self.config.CLASSES[id] for id in prediction["class_ids"]],
+                        "format": "rle",
+                        "rle": [self.binary_mask_to_rle(bm) for bm in prediction["masks"]]
+                    }
+                },
+                "score": float(prediction["scores"])
             })
 
             # Convert to segmentation/polygon format

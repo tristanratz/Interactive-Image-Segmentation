@@ -15,7 +15,10 @@ WORKDIR ${HOME}
 # RUN pip install git+https://github.com/heartexlabs/label-studio.git@master
 RUN pip install label-studio
 
-COPY . ${HOME}/
+COPY ./ ${HOME}/img_sgm_ml
+COPY ./_wsgi.py ${HOME}/_wsgi.py
+COPY ./supervisord.conf ${HOME}/supervisord.conf
+COPY ./uwsgi.ini ${HOME}/uwsgi.ini
 
 EXPOSE 9090
 CMD ["supervisord"]
