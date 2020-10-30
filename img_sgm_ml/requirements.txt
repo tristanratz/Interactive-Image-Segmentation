@@ -1,4 +1,6 @@
-scikit-image
+matplotlib
+label-studio
+# numba
 
 # MaskRCNN
 numpy

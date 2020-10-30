@@ -4,9 +4,9 @@
   "host": "0.0.0.0",
   "port": 8080,
   "debug": false,
-  "label_config": "config.xml",
-  "input_path": "tasks.json",
-  "output_dir": "completions",
+  "label_config": "/img_sgm/config.xml",
+  "input_path": "/img_sgm/tasks.json",
+  "output_dir": "/img_sgm/completions",
   "instruction": "Type some <b>hypertext</b> for label experts!",
   "allow_delete_completions": true,
   "templates_dir": "examples",
@@ -18,6 +18,10 @@
     {
       "url": "http://localhost:9090",
       "name": "Mask RCNN"
+    },
+    {
+      "url": "http://ml_modul:9090",
+      "name": "img_sgmbc6b"
     }
   ],
   "task_page_auto_update_timer": 10000,
@@ -30,5 +34,6 @@
     "name": "Completions",
     "type": "completions-dir",
     "path": "/Users/tristanratz/Development/label-studio/image_polygons_project/completions"
-  }
+  },
+  "config_path": "/img_sgm/config.json"
 }

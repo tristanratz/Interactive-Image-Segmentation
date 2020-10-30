@@ -23,9 +23,7 @@ class LabelConfig(Config):
     DETECTION_MIN_CONFIDENCE = 0.9
 
     # Number of classes (including background)
-    def __init__(self):
-        super().__init__()
-        self.CLASSES = {0: u'__background__',
+    CLASSES = {0: u'__background__',
          1: u'person',
          2: u'bicycle',
          3: u'car',
@@ -106,6 +104,6 @@ class LabelConfig(Config):
          78: u'teddy bear',
          79: u'hair drier',
          80: u'toothbrush'}
-        self.NUM_CLASSES = 80 + 1  # Background + baloon
+    NUM_CLASSES = 80 + 1  # Background + baloon
 
 

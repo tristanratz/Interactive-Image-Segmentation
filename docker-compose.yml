@@ -9,14 +9,15 @@ services:
       - "./data/redis:/data"
     expose:
       - 6379
-  server:
-    container_name: server
+  ml_modul:
+    container_name: ml_modul
     build: img_sgm_ml
     environment:
       - MODEL_DIR=/data/models
       - RQ_QUEUE_NAME=default
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - DOCKER=TRUE
     ports:
       - 9090:9090
     depends_on:
@@ -26,10 +27,10 @@ services:
     volumes:
       - "./data/server:/data"
       - "./logs:/tmp"
-#  labeltool:
-#    container_name: server
-#    build: img_sgm
-#    ports:
-#      - 8080:8080
-#    volumes:
-#      - "./data/server:/data"
+  labeltool:
+    container_name: labeltool
+    build: img_sgm
+    ports:
+      - 8080:8080
+    volumes:
+      - "./img_sgm:/img_sgm"

@@ -9,7 +9,7 @@ class OutputStream:
     Python implementation of the Output Stream by thi-ng
     https://github.com/thi-ng/umbrella/tree/develop/packages/bitstream/
     """
-    buffer: [np.array]
+    buffer: np.array
     pos: int
     bit: int
     bitpos: int
@@ -31,13 +31,13 @@ class OutputStream:
         self.bit = 8 - (pos & 0x7)
         self.bitpos = pos
 
-    def write(self, x: int, word_size=1):
+    def write(self, x: int, word_size: int = 1):
         if word_size > 32:
             hi = int(math.floor(x / U32))
             self.write(hi, word_size - 32)
             self.write(x - hi * U32, 32)
         elif word_size > 8:
-            n = word_size & -8
+            n: int = word_size & -8
             msb = word_size - n
             if msb > 0:
                 self._write(x >> n, msb)
