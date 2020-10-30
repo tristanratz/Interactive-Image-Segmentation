@@ -1,5 +1,6 @@
 matplotlib
 label-studio
+opencv-python
 # numba
 
 # MaskRCNN

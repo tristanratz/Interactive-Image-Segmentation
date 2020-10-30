@@ -9,6 +9,9 @@ img_sgm/predictions
 img_sgm_ml/rsc
 logs
 data
+out
+!_DO_NOT_DELETE_
+!img_sgm_ml/scripts
 
 # Created by .ignore support plugin (hsz.mobi)
 ### VirtualEnv template

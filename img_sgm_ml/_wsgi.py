@@ -86,8 +86,8 @@ if __name__ == "__main__":
     kwargs = parse_kwargs() if args.kwargs else dict()
 
     if args.check:
-        print('Check "' + ImageClassifierAPI.__name__ + '" instance creation..')
-        model = ImageClassifierAPI(**kwargs)
+        print('Check "' + MaskRCNNModel.__name__ + '" instance creation..')
+        model = MaskRCNNModel(**kwargs)
 
     app = init_app(
         model_class=MaskRCNNModel,
