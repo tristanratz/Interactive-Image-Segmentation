@@ -7,6 +7,8 @@ img_sgm/completions
 img_sgm/upload
 img_sgm/predictions
 img_sgm_ml/rsc
+img_sgm/config.xml
+img_sgm/source.json
 logs
 data
 out

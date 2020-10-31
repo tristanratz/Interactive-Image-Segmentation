@@ -11,6 +11,7 @@ sys.path.append(MRCNN2)
 
 from label_studio.ml import LabelStudioMLBase
 import mrcnn.model as modellib
+from mrcnn import utils
 from img_sgm_ml.train_mask_rcnn.config import LabelConfig
 from label_studio.ml.utils import get_single_tag_keys
 import matplotlib.pyplot as plt
@@ -43,6 +44,9 @@ class MaskRCNNModel(LabelStudioMLBase):
 
         # Generate config
         self.generate_config(overwrite=False)
+
+        # Download wights
+        self.download_weights()
 
     def predict(self, tasks, **kwargs):
         # Array with loaded images
@@ -129,6 +133,11 @@ class MaskRCNNModel(LabelStudioMLBase):
         g = (name_hash & 0x00FF00) >> 8
         b = name_hash & 0x0000FF
         return r, g, b, 128
+
+    def download_weights(self):
+        weights_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "rsc/mask_rcnn_coco.h5")
+        if not os.path.exists(weights_path):
+            utils.download_trained_weights(weights_path)
 
     def generate_config(self, overwrite: bool = False):
         file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "img_sgm/config.xml")
