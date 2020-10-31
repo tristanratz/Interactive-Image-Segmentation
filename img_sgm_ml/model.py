@@ -9,7 +9,6 @@ MRCNN2 = os.path.abspath("./Mask_RCNN/")
 sys.path.append(MRCNN)
 sys.path.append(MRCNN2)
 
-from itertools import groupby
 from label_studio.ml import LabelStudioMLBase
 import mrcnn.model as modellib
 from img_sgm_ml.train_mask_rcnn.config import LabelConfig
@@ -20,7 +19,6 @@ import numpy as np
 
 
 class MaskRCNNModel(LabelStudioMLBase):
-
     model = None
 
     def __init__(self, **kwargs):
@@ -28,12 +26,12 @@ class MaskRCNNModel(LabelStudioMLBase):
 
         if os.getenv("DOCKER"):
             self.from_name, self.to_name, self.value, self.classes = get_single_tag_keys(
-                  self.parsed_label_config, 'BrushLabels', 'Image')
+                self.parsed_label_config, 'BrushLabels', 'Image')
         else:
             self.from_name = ""
             self.to_name = ""
 
-        #weights_path = model.find_last()
+        # weights_path = model.find_last()
         self.config = LabelConfig()
 
         # Create Model
@@ -49,7 +47,7 @@ class MaskRCNNModel(LabelStudioMLBase):
         for task in tasks:
             # Replace localhost with docker container name, when running with docker
             if os.getenv("DOCKER"):
-                task['data']['image'] =  task['data']['image'].replace("localhost", "labeltool", 1)
+                task['data']['image'] = task['data']['image'].replace("localhost", "labeltool", 1)
             # Run model detection
             print("Running on {}".format(task['data']['image']))
             # Read image
@@ -71,15 +69,25 @@ class MaskRCNNModel(LabelStudioMLBase):
                 shape = np.array(prediction['masks'][:, :, i]).shape
 
                 # Expand mask with 3 other dimensions
-                mask_image = np.zeros((shape[0], shape[1], 4), dtype=np.uint8)
-                mask_image[:, :, -1:] = np.expand_dims(prediction['masks'][:, :, i], axis=2)
-                mask_image = mask_image*255
+                mask3d = np.zeros((shape[0], shape[1], 4), dtype=np.uint8)
+                expanded_mask = np.array(prediction['masks'][:, :, i:i + 1])
+                mask3d[:, :, :] = expanded_mask
+
+                # Farbe laden
+                (r, g, b, a) = self.generate_color(self.config.CLASSES[prediction["class_ids"][i]])
+
+                brush = np.empty((shape[0], shape[1], 4), dtype=np.uint8)
+                brush[:, :] = [r, g, b, 128]
+                # mask_image mit array multiplizieren
+                brush = np.array(brush * mask3d, dtype=np.uint8)
+                # --> farbiges Array an der Maskenstelle
 
                 if not os.getenv("DOCKER"):
                     plt.imsave(f"./out/mask_{i}.png", prediction['masks'][:, :, i])
-                    plt.imsave(f"./out/mask_{i}_expanded.png",mask_image[:, :, 3])
+                    plt.imsave(f"./out/mask_{i}_expanded.png", mask3d[:, :, 3])
+                    plt.imsave(f"./out/mask_{i}_color.png", brush)
 
-                flat = mask_image.flatten() #swapaxes
+                flat = brush.flatten()  # swapaxes
                 rle = encode(flat, len(flat))
                 # rle = encode(np.reshape(prediction['masks'][:, :, i], shape[0]*shape[1]), shape[0]*shape[1])
 
@@ -111,6 +119,13 @@ class MaskRCNNModel(LabelStudioMLBase):
     def fit(self, completions, workdir=None, **kwargs):
         pass
 
+    def generate_color(self, string: str) -> (int, int, int, int):
+        name_hash = hash(string)
+        r = (name_hash & 0xFF0000) >> 16
+        g = (name_hash & 0x00FF00) >> 8
+        b = name_hash & 0x0000FF
+        return r, g, b, 128
+
 
 if __name__ == "__main__":
     m = MaskRCNNModel()
@@ -121,10 +136,10 @@ if __name__ == "__main__":
         }
     }])
 
-    #print(predictions)
+    # print(predictions)
     width = 700
     height = 468
 
     for p in predictions:
-        plt.imsave(f"./out/{p['result']['value']['brushlabels'][0]}.png", np.reshape(decode(p["result"]["value"]["rle"]), [height, width, 4])[:,:,3]/255)
-    print("Finished with code 0.")
+        plt.imsave(f"./out/{p['result'][0]['value']['brushlabels'][0]}.png",
+                   np.reshape(decode(p["result"][0]["value"]["rle"]), [height, width, 4])[:, :, 3] / 255)
