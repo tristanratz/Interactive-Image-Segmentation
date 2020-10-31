@@ -14,6 +14,7 @@ import mrcnn.model as modellib
 from img_sgm_ml.train_mask_rcnn.config import LabelConfig
 from label_studio.ml.utils import get_single_tag_keys
 import matplotlib.pyplot as plt
+import xml.etree.ElementTree as ET
 import skimage
 import numpy as np
 
@@ -39,6 +40,9 @@ class MaskRCNNModel(LabelStudioMLBase):
 
         # Load weights
         self.model.load_weights(os.path.join(os.path.abspath("./img_sgm_ml/rsc"), "mask_rcnn_coco.h5"), by_name=True)
+
+        # Generate config
+        self.generate_config(overwrite=False)
 
     def predict(self, tasks, **kwargs):
         # Array with loaded images
@@ -77,7 +81,7 @@ class MaskRCNNModel(LabelStudioMLBase):
                 (r, g, b, a) = self.generate_color(self.config.CLASSES[prediction["class_ids"][i]])
 
                 brush = np.empty((shape[0], shape[1], 4), dtype=np.uint8)
-                brush[:, :] = [r, g, b, 128]
+                brush[:, :] = [b, g, r, a]
                 # mask_image mit array multiplizieren
                 brush = np.array(brush * mask3d, dtype=np.uint8)
                 # --> farbiges Array an der Maskenstelle
@@ -125,6 +129,33 @@ class MaskRCNNModel(LabelStudioMLBase):
         g = (name_hash & 0x00FF00) >> 8
         b = name_hash & 0x0000FF
         return r, g, b, 128
+
+    def generate_config(self, overwrite: bool = False):
+        file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "img_sgm/config.xml")
+        if not overwrite and os.path.isfile(file):
+            print("Using existing config.")
+            return
+        print("Generating config...")
+        view = ET.Element('View')
+        brushlabels = ET.SubElement(view, 'BrushLabels')
+        brushlabels.set("name", "tag")
+        brushlabels.set("toName", "img")
+        img = ET.SubElement(view, 'Image')
+        img.set("name", "img")
+        img.set("value", "$image")
+        img.set("zoom", "true")
+        img.set("zoomControl", "true")
+
+        for key in self.config.CLASSES:
+            lclass = self.config.CLASSES[key]
+            label = ET.SubElement(brushlabels, 'Label')
+            label.set("value", lclass)
+            (r, g, b, a) = self.generate_color(lclass)
+            label.set("background", f"rgba({r},{g},{b},{round((a / 255), 2)})")
+
+        tree = ET.ElementTree(view)
+        tree.write(file)
+        print("Config ready")
 
 
 if __name__ == "__main__":

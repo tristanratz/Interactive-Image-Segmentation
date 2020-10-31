@@ -25,11 +25,14 @@ services:
     links:
       - redis
     volumes:
+      - "./img_sgm:/app/img_sgm"
       - "./data/server:/data"
       - "./logs:/tmp"
   labeltool:
     container_name: labeltool
     build: img_sgm
+    depends_on:
+      - ml_modul
     ports:
       - 8080:8080
     volumes:
