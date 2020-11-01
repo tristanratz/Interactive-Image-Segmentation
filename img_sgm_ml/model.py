@@ -10,21 +10,20 @@ sys.path.append(MRCNN)
 sys.path.append(MRCNN2)
 
 from label_studio.ml import LabelStudioMLBase
-import mrcnn.model as modellib
-from mrcnn import utils
 from img_sgm_ml.model.config import LabelConfig
 from label_studio.ml.utils import get_single_tag_keys
+from img_sgm_ml.model.model import MaskRCNNModel
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 import skimage
 import numpy as np
 
 
-class MaskRCNNModel(LabelStudioMLBase):
+class ModelAPI(LabelStudioMLBase):
     model = None
 
     def __init__(self, **kwargs):
-        super(MaskRCNNModel, self).__init__(**kwargs)
+        super(ModelAPI, self).__init__(**kwargs)
 
         if os.getenv("DOCKER"):
             self.from_name, self.to_name, self.value, self.classes = get_single_tag_keys(
@@ -36,19 +35,23 @@ class MaskRCNNModel(LabelStudioMLBase):
         # weights_path = model.find_last()
         self.config = LabelConfig()
 
-        # Create Model
-        self.model = modellib.MaskRCNN("inference", self.config, "./checkpoints")
-
-        # Load weights
-        self.model.load_weights(os.path.join(os.path.abspath("./img_sgm_ml/rsc"), "mask_rcnn_coco.h5"), by_name=True)
+        # Load model
+        self.model = MaskRCNNModel(self.config)
 
         # Generate config
         self.generate_config(overwrite=False)
 
-        # Download wights
-        self.download_weights()
-
     def predict(self, tasks, **kwargs):
+        """
+        This method will call the prediction and will format the results into the format expected by label-studio
+
+        Args:
+            tasks: Array of tasks which will be predicted
+            **kwargs:
+
+        Returns: label-studio compatible results
+
+        """
         # Array with loaded images
         images = []
 
@@ -63,7 +66,7 @@ class MaskRCNNModel(LabelStudioMLBase):
             images.append(image)
 
         # Detect objects
-        predictions = self.model.detect(images, verbose=1)
+        predictions = self.model.batchInterfere(images)
         print("Inference finished. Start conversion.")
 
         # Build the detections into an array
@@ -124,7 +127,16 @@ class MaskRCNNModel(LabelStudioMLBase):
         # print(results)
         return results
 
-    def fit(self, completions, workdir=None, **kwargs):
+    def fit(self, completions, workdir=None, **kwargs) -> None:
+        """
+        Formats the completions and images into the expected format
+
+        Args:
+            completions: Array of labeled images
+            workdir:
+            **kwargs:
+
+        """
         pass
 
     def generate_color(self, string: str) -> (int, int, int, int):
@@ -133,11 +145,6 @@ class MaskRCNNModel(LabelStudioMLBase):
         g = (name_hash & 0x00FF00) >> 8
         b = name_hash & 0x0000FF
         return r, g, b, 128
-
-    def download_weights(self):
-        weights_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "rsc/mask_rcnn_coco.h5")
-        if not os.path.exists(weights_path):
-            utils.download_trained_weights(weights_path)
 
     def generate_config(self, overwrite: bool = False):
         file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "img_sgm/config.xml")
@@ -168,7 +175,7 @@ class MaskRCNNModel(LabelStudioMLBase):
 
 
 if __name__ == "__main__":
-    m = MaskRCNNModel()
+    m = ModelAPI()
     predictions = m.predict(tasks=[{
         "data": {
             # "image": "http://localhost:8080/data/upload/2ccf6fecb6406e9b3badb399f85070e3-DSC_0020.JPG"
