@@ -12,7 +12,7 @@ sys.path.append(MRCNN2)
 from label_studio.ml import LabelStudioMLBase
 import mrcnn.model as modellib
 from mrcnn import utils
-from img_sgm_ml.train_mask_rcnn.config import LabelConfig
+from img_sgm_ml.model.config import LabelConfig
 from label_studio.ml.utils import get_single_tag_keys
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET

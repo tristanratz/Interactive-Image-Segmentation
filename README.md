@@ -1,8 +1,10 @@
 # Image Segmentation Module for Label Studio
 
-This module is build for label studio to facilitate the creation of large image segmentation datasets with artificial intelligence.
+This module was build facilitate the creation of large image segmentation datasets with artificial intelligence with label-studio.
+Create image segmentations and get in the fly predictions for the dataset your labeling.
 
-You get on the fly predictions for the dataset your labeling.
+It was build with the help of Matterports MaskRCNN implementation and is meant to help you label images.
+After configuring the program for your needs and labeling a certain amount of images, the program should start to label images itself.
 
 ## Installation
 
@@ -12,28 +14,15 @@ First clone the project
 git clone --recurse-submodules -j8 git://github.com/tristanratz/bar.git
 ```
 
-Then we have to install all dependencies.
-
-```bash
-pip install -r requirements.txt
-```
-
 Make sure you have docker and docker-compose installed to start the ml module.
-
-Download the pretrained Matterport COCO Model from Matterport https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5
 
 ### Run
 
 To start the ML Module change to the ```img-sgm-ml``` folder and execute the following.
 ```bash
-docker-compose up -d # The -d is for no output
+docker-compose up -d # The -d stands for no output
 ```
-The ML-Image-Segmentation Server is now up and running.
-
-Now start label-studio to get started with labeling.
-```bash
-label-studio start img_sgm
-```
+The ML-Image-Segmentation Application is now up and running. Open http://localhost:8080/
 
 Now you have to label about 70 images. After you are done, change to the model tab in label studio and train the model.
 After it finished learning you can continue labeling and should get predictions for your images.
@@ -42,14 +31,9 @@ Let the pre-labeling begin...!
 
 ## Own data
 
-To create own labels go into ```img-sgm/config.xml``` and enter your labels in the following format
+To create own labels go into ```img_sgm_ml/model/config.py``` and enter your labels in the following format
 
-```xml
-<Label value="LABEL_NAME" background="LABEL_COLOR"/>
-```
-e.g.
-```xml
-<Label value="Airplane" background="red"/>
+```python
 ```
 
 After that add the images you want to label with the following command to the labeling tool:
@@ -58,7 +42,7 @@ After that add the images you want to label with the following command to the la
 label-studio init -i ./upload/ --input-format image-dir
 ```
 
-or import them via the web interface.
+or import them via the web interface (http://localhost:8080/import). Then (re)start the program.
 
 ## Disclaimer
 
