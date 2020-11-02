@@ -3,7 +3,7 @@ import argparse
 import logging
 import logging.config
 
-from img_sgm_ml.model import MaskRCNNModel
+from img_sgm_ml.api import ModelAPI
 
 logging.config.dictConfig({
   "version": 1,
@@ -86,11 +86,11 @@ if __name__ == "__main__":
     kwargs = parse_kwargs() if args.kwargs else dict()
 
     if args.check:
-        print('Check "' + MaskRCNNModel.__name__ + '" instance creation..')
-        model = MaskRCNNModel(**kwargs)
+        print('Check "' + ModelAPI.__name__ + '" instance creation..')
+        model = ModelAPI(**kwargs)
 
     app = init_app(
-        model_class=MaskRCNNModel,
+        model_class=ModelAPI,
         model_dir=os.environ.get('MODEL_DIR', args.model_dir),
         redis_queue=os.environ.get('RQ_QUEUE_NAME', 'default'),
         redis_host=os.environ.get('REDIS_HOST', 'localhost'),
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 else:
     # for uWSGI use
     app = init_app(
-        model_class=MaskRCNNModel,
+        model_class=ModelAPI,
         model_dir=os.environ.get('MODEL_DIR', os.path.dirname(__file__)),
         redis_queue=os.environ.get('RQ_QUEUE_NAME', 'default'),
         redis_host=os.environ.get('REDIS_HOST', 'localhost'),
