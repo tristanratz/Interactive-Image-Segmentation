@@ -87,26 +87,24 @@ class ModelAPI(LabelStudioMLBase):
                 # Farbe laden
                 (r, g, b, a) = self.generate_color(self.config.CLASSES[prediction["class_ids"][i]])
 
-                brush = np.empty((shape[0], shape[1], 4), dtype=np.uint8)
-                brush[:, :] = [b, g, r, a]
-                # mask_image mit array multiplizieren
-                brush = np.array(brush * mask3d, dtype=np.uint8)
-                # --> farbiges Array an der Maskenstelle
+                mask_image = np.empty((shape[0], shape[1], 4), dtype=np.uint8)
+                mask_image[:, :] = [b, g, r, a]
+
+                # multiply mask_image with array to get a bgr image with the color of the mask/name
+                mask_image = np.array(mask_image * mask3d, dtype=np.uint8)
 
                 if not os.getenv("DOCKER"):
                     plt.imsave(f"./out/mask_{i}.png", prediction['masks'][:, :, i])
                     plt.imsave(f"./out/mask_{i}_expanded.png", mask3d[:, :, 3])
-                    plt.imsave(f"./out/mask_{i}_color.png", brush)
+                    plt.imsave(f"./out/mask_{i}_color.png", mask_image)
 
-                flat = brush.flatten()  # swapaxes
+                flat = mask_image.flatten()  # swapaxes
                 rle = encode(flat, len(flat))
                 # rle = encode(np.reshape(prediction['masks'][:, :, i], shape[0]*shape[1]), shape[0]*shape[1])
 
                 if not os.getenv("DOCKER"):
                     print("Encode and decode did work:", np.array_equal(flat, decode(rle)))
-                    width = 700
-                    height = 468
-                    plt.imsave(f"./out/mask_{i}_flattened.png", np.reshape(flat, [height, width, 4]))
+                    plt.imsave(f"./out/mask_{i}_flattened.png", np.reshape(flat, [shape[1], shape[0], 4]))
 
                 results.append({
                     "result": [{

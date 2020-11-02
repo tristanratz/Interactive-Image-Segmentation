@@ -16,12 +16,8 @@
   "sampling": "sequential",
   "ml_backends": [
     {
-      "url": "http://localhost:9090",
-      "name": "Mask RCNN"
-    },
-    {
       "url": "http://ml_modul:9090",
-      "name": "img_sgmbc6b"
+      "name": "Mask RCNN"
     }
   ],
   "task_page_auto_update_timer": 10000,
