@@ -1,5 +1,6 @@
 import sys
 import os
+from typing import Dict
 
 from img_sgm_ml.rle.encode import encode
 from img_sgm_ml.rle.decode import decode
@@ -126,7 +127,7 @@ class ModelAPI(LabelStudioMLBase):
         # print(results)
         return [{"result": results}]
 
-    def fit(self, completions, workdir=None, **kwargs) -> None:
+    def fit(self, completions, workdir=None, **kwargs) -> Dict:
         """
         Formats the completions and images into the expected format
 
@@ -136,29 +137,11 @@ class ModelAPI(LabelStudioMLBase):
             **kwargs:
 
         """
-        #self.dataset.
-        # image_urls, image_classes = [], []
-        # print('Collecting completions...')
-        # for completion in completions:
-        #     if is_skipped(completion):
-        #         continue
-        #     image_urls.append(completion['data'][self.value])
-        #     image_classes.append(get_choice(completion))
-        #
-        # print('Creating dataset...')
-        # dataset = ImageClassifierDataset(image_urls, image_classes)
-        # dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size)
-        #
-        # print('Train model...')
-        # self.reset_model()
-        # self.model.train(dataloader, num_epochs=num_epochs)
-        #
-        # print('Save model...')
-        # model_path = os.path.join(workdir, 'model.pt')
-        # self.model.save(model_path)
-        #
-        # return {'model_path': model_path, 'classes': dataset.classes}
-        pass
+        train_set, val_set = self.dataset.prepare_data(completions=completions)
+        model_path = self.model.train(train_set, val_set)
+
+        return {'model_path': model_path, 'classes': list(set(self.config.CLASSES))}
+
 
 if __name__ == "__main__":
     m = ModelAPI()

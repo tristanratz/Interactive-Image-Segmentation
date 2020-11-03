@@ -18,7 +18,7 @@ def download_weights():
 def generate_color(string: str) -> (int, int, int, int):
     #name_hash = hash(string)
     # Generate hash
-    result = hashlib.md5(bytes(string))
+    result = hashlib.md5(bytes(string.encode('utf-8')))
     name_hash = int(result.hexdigest(), 16)
     r = (name_hash & 0xFF0000) >> 16
     g = (name_hash & 0x00FF00) >> 8

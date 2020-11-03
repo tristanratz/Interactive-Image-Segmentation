@@ -14,6 +14,7 @@ services:
     build: img_sgm_ml
     environment:
       - MODEL_DIR=/data/models
+      - USECOCO=true # comment if you dont want to use coco if no model is found
       - RQ_QUEUE_NAME=default
       - REDIS_HOST=redis
       - REDIS_PORT=6379

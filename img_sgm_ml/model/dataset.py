@@ -15,11 +15,24 @@ class LabelDataset(Dataset):
         for idx in config.CLASSES:
             self.add_class(config.CLASSES[idx], idx, config.CLASSES[idx])
 
-    def prepare_data(self, completions, subset):
+    def prepare_data(self, completions):
         """ Prepare the data
         completions: The already labeled images
         subset: Subset to load: train or val
         """
+
+        image_urls, image_classes = [], []
+
+        print('Collecting completions...')
+        for completion in completions:
+            if is_skipped(completion):
+                continue
+            image_urls.append(completion['data'][self.value])
+            image_classes.append(get_choice(completion))
+
+        print('Creating dataset...')
+        dataset = ImageClassifierDataset(image_urls, image_classes)
+        dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size)
 
         # Train or validation dataset?
         assert subset in ["train", "val"]
@@ -63,7 +76,7 @@ class LabelDataset(Dataset):
                 image_id=a['filename'],  # use file name as a unique image id
                 path=image_path,
                 width=width, height=height,
-                polygons=polygons)
+                bitmask=polygons)
 
     def load_mask(self, image_id):
         """Generate instance masks for an image.
