@@ -1,6 +1,5 @@
 import os
 import argparse
-import logging
 import logging.config
 
 from img_sgm_ml.api import ModelAPI

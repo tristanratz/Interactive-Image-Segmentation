@@ -1,7 +1,6 @@
 import sys
 import os
 
-from img_sgm_ml.model.utils import generate_config, generate_color
 from img_sgm_ml.rle.encode import encode
 from img_sgm_ml.rle.decode import decode
 
@@ -10,6 +9,8 @@ MRCNN2 = os.path.abspath("./Mask_RCNN/")
 sys.path.append(MRCNN)
 sys.path.append(MRCNN2)
 
+from img_sgm_ml.model.utils import generate_config, generate_color
+from img_sgm_ml.model.dataset import LabelDataset
 from label_studio.ml import LabelStudioMLBase
 from img_sgm_ml.model.config import LabelConfig
 from label_studio.ml.utils import get_single_tag_keys
@@ -40,6 +41,9 @@ class ModelAPI(LabelStudioMLBase):
 
         # Generate config
         generate_config(self.config, overwrite=False)
+
+        # Create dataset
+        self.dataset = LabelDataset(self.config)
 
     def predict(self, tasks, **kwargs):
         """
@@ -84,11 +88,11 @@ class ModelAPI(LabelStudioMLBase):
                 expanded_mask = np.array(prediction['masks'][:, :, i:i + 1])
                 mask3d[:, :, :] = expanded_mask
 
-                # Farbe laden
+                # Load color
                 (r, g, b, a) = generate_color(self.config.CLASSES[prediction["class_ids"][i]])
 
                 mask_image = np.empty((shape[0], shape[1], 4), dtype=np.uint8)
-                mask_image[:, :] = [b, g, r, a]
+                mask_image[:, :] = [r, g, b, a]
 
                 # multiply mask_image with array to get a bgr image with the color of the mask/name
                 mask_image = np.array(mask_image * mask3d, dtype=np.uint8)
@@ -98,16 +102,14 @@ class ModelAPI(LabelStudioMLBase):
                     plt.imsave(f"./out/mask_{i}_expanded.png", mask3d[:, :, 3])
                     plt.imsave(f"./out/mask_{i}_color.png", mask_image)
 
-                flat = mask_image.flatten()  # swapaxes
+                flat = mask_image.flatten()
                 rle = encode(flat, len(flat))
-                # rle = encode(np.reshape(prediction['masks'][:, :, i], shape[0]*shape[1]), shape[0]*shape[1])
 
                 if not os.getenv("DOCKER"):
                     print("Encode and decode did work:", np.array_equal(flat, decode(rle)))
-                    plt.imsave(f"./out/mask_{i}_flattened.png", np.reshape(flat, [shape[1], shape[0], 4]))
+                    plt.imsave(f"./out/mask_{i}_flattened.png", np.reshape(flat, [shape[0], shape[1], 4]))
 
                 results.append({
-                    "result": [{
                         'from_name': self.from_name,
                         'to_name': self.to_name,
                         'type': 'brushlabels',
@@ -116,14 +118,13 @@ class ModelAPI(LabelStudioMLBase):
                             "format": "rle",
                             "rle": rle.tolist(),
                         },
-                    }],
-                    "score": float(prediction["scores"][i]),
+                        "score": float(prediction["scores"][i]),
                 })
 
                 # Convert to segmentation/polygon format
                 # https://github.com/cocodataset/cocoapi/issues/131
         # print(results)
-        return results
+        return [{"result": results}]
 
     def fit(self, completions, workdir=None, **kwargs) -> None:
         """
@@ -135,15 +136,37 @@ class ModelAPI(LabelStudioMLBase):
             **kwargs:
 
         """
+        #self.dataset.
+        # image_urls, image_classes = [], []
+        # print('Collecting completions...')
+        # for completion in completions:
+        #     if is_skipped(completion):
+        #         continue
+        #     image_urls.append(completion['data'][self.value])
+        #     image_classes.append(get_choice(completion))
+        #
+        # print('Creating dataset...')
+        # dataset = ImageClassifierDataset(image_urls, image_classes)
+        # dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size)
+        #
+        # print('Train model...')
+        # self.reset_model()
+        # self.model.train(dataloader, num_epochs=num_epochs)
+        #
+        # print('Save model...')
+        # model_path = os.path.join(workdir, 'model.pt')
+        # self.model.save(model_path)
+        #
+        # return {'model_path': model_path, 'classes': dataset.classes}
         pass
-
 
 if __name__ == "__main__":
     m = ModelAPI()
     predictions = m.predict(tasks=[{
         "data": {
             # "image": "http://localhost:8080/data/upload/2ccf6fecb6406e9b3badb399f85070e3-DSC_0020.JPG"
-            "image": "http://localhost:8080/data/upload/0462f5361cfcd2d02f94d44760b74f0c-DSC_0296.JPG"
+            #"image": "http://localhost:8080/data/upload/0462f5361cfcd2d02f94d44760b74f0c-DSC_0296.JPG"
+            "image": "http://localhost:8080/data/upload/a7146602a93f844dbeb3cc21f9dc1fd8-DSC_0277.JPG"
         }
     }])
 
