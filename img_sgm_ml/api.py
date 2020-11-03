@@ -1,6 +1,7 @@
 import sys
 import os
 
+from img_sgm_ml.model.utils import generate_config, generate_color
 from img_sgm_ml.rle.encode import encode
 from img_sgm_ml.rle.decode import decode
 
@@ -14,7 +15,6 @@ from img_sgm_ml.model.config import LabelConfig
 from label_studio.ml.utils import get_single_tag_keys
 from img_sgm_ml.model.model import MaskRCNNModel
 import matplotlib.pyplot as plt
-import xml.etree.ElementTree as ET
 import skimage
 import numpy as np
 
@@ -39,7 +39,7 @@ class ModelAPI(LabelStudioMLBase):
         self.model = MaskRCNNModel(self.config)
 
         # Generate config
-        self.generate_config(overwrite=False)
+        generate_config(self.config, overwrite=False)
 
     def predict(self, tasks, **kwargs):
         """
@@ -85,7 +85,7 @@ class ModelAPI(LabelStudioMLBase):
                 mask3d[:, :, :] = expanded_mask
 
                 # Farbe laden
-                (r, g, b, a) = self.generate_color(self.config.CLASSES[prediction["class_ids"][i]])
+                (r, g, b, a) = generate_color(self.config.CLASSES[prediction["class_ids"][i]])
 
                 mask_image = np.empty((shape[0], shape[1], 4), dtype=np.uint8)
                 mask_image[:, :] = [b, g, r, a]
@@ -136,40 +136,6 @@ class ModelAPI(LabelStudioMLBase):
 
         """
         pass
-
-    def generate_color(self, string: str) -> (int, int, int, int):
-        name_hash = hash(string)
-        r = (name_hash & 0xFF0000) >> 16
-        g = (name_hash & 0x00FF00) >> 8
-        b = name_hash & 0x0000FF
-        return r, g, b, 128
-
-    def generate_config(self, overwrite: bool = False):
-        file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "img_sgm/config.xml")
-        if not overwrite and os.path.isfile(file):
-            print("Using existing config.")
-            return
-        print("Generating config...")
-        view = ET.Element('View')
-        brushlabels = ET.SubElement(view, 'BrushLabels')
-        brushlabels.set("name", "tag")
-        brushlabels.set("toName", "img")
-        img = ET.SubElement(view, 'Image')
-        img.set("name", "img")
-        img.set("value", "$image")
-        img.set("zoom", "true")
-        img.set("zoomControl", "true")
-
-        for key in self.config.CLASSES:
-            lclass = self.config.CLASSES[key]
-            label = ET.SubElement(brushlabels, 'Label')
-            label.set("value", lclass)
-            (r, g, b, a) = self.generate_color(lclass)
-            label.set("background", f"rgba({r},{g},{b},{round((a / 255), 2)})")
-
-        tree = ET.ElementTree(view)
-        tree.write(file)
-        print("Config ready")
 
 
 if __name__ == "__main__":
