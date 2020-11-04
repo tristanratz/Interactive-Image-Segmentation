@@ -1,7 +1,10 @@
 import os
 import hashlib
 import xml.etree.ElementTree as ET
+import numpy as np
 from mrcnn import utils
+from img_sgm_ml.rle.decode import decode
+
 
 def download_weights():
     weights_path = os.path.join(
@@ -59,3 +62,44 @@ def generate_config(config, overwrite: bool = False):
     tree = ET.ElementTree(view)
     tree.write(file)
     print("Config ready")
+
+
+def decode_completions_to_bitmap(completion):
+    """
+    From Label-Studio completion to dict with bitmap
+    Args:
+        completion: a LS completion of an image
+
+    Returns:
+    {   image: image-url
+        labels: [label_1, label_2...]
+        bitmaps: [ [numpy uint8 image (width x height)] ]
+    }
+
+    """
+    labels = []
+    bitmaps = []
+    counter = 0
+    for result in completion['result']:
+        if result['type'] != 'brushlabels':
+            continue
+
+        label = result['value']['brushlabels'][0]
+        labels.append(label)
+
+        # result count
+        counter += 1
+
+        rle = result['value']['rle']
+        width = result['original_width']
+        height = result['original_height']
+
+        dec = decode(rle)
+        image = np.reshape(dec, [height, width, 4])[:, :, 3]
+        bitmap = image.vectorize(lambda l: 1 if l > 0.4 else 0)
+        bitmaps.append(bitmap)
+    return {
+        "results_count": counter,
+        "labels": labels,
+        "bitmaps": bitmaps
+    }
