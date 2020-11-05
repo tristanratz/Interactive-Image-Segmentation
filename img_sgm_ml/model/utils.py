@@ -3,6 +3,7 @@ import hashlib
 import xml.etree.ElementTree as ET
 import numpy as np
 from mrcnn import utils
+
 from img_sgm_ml.rle.decode import decode
 
 
@@ -19,7 +20,7 @@ def download_weights():
 
 
 def generate_color(string: str) -> (int, int, int, int):
-    #name_hash = hash(string)
+    # name_hash = hash(string)
     # Generate hash
     result = hashlib.md5(bytes(string.encode('utf-8')))
     name_hash = int(result.hexdigest(), 16)
@@ -71,7 +72,7 @@ def decode_completions_to_bitmap(completion):
         completion: a LS completion of an image
 
     Returns:
-    {   image: image-url
+    {   result-count: count of labels
         labels: [label_1, label_2...]
         bitmaps: [ [numpy uint8 image (width x height)] ]
     }
@@ -103,3 +104,45 @@ def decode_completions_to_bitmap(completion):
         "labels": labels,
         "bitmaps": bitmaps
     }
+
+
+def convert_bitmaps_to_mrnn(bitmap_object, config):
+    """
+    Converts a Bitmap object (function above) into a mrnn compatible format
+
+    Args:
+        bitmap_object: Object returned by decode_completions_to_bitmap
+        config: Config with classes
+
+    Returns:
+    {   labels: [label_1_index, label_2_index...]
+        bitmaps: [ [numpy uint8 image (width x height x instance_count)] ]
+    }
+
+    """
+    bitmaps = bitmap_object["bitmaps"]
+    counter = bitmap_object["result_count"]
+    labels = bitmap_object["labels"]
+    height = bitmaps[0].shape[0]
+    width = bitmaps[0].shape[1]
+
+    bms = np.zeros((height, width, counter), np.int32)
+    for i, bm in enumerate(bitmaps):
+        bms[:, :, i] = bm
+
+    invlabels = dict(zip(config.CLASSES.values(), config.CLASSES.keys()))
+    encoded_labels = [invlabels[l] for l in labels]
+
+    return {
+        "labels": encoded_labels,
+        "bitmaps": bms,
+        "width": width,
+        "height": height
+    }
+
+
+def completion_to_mrnn(completion, config):
+    return convert_bitmaps_to_mrnn(
+        decode_completions_to_bitmap(completion),
+        config
+    )
