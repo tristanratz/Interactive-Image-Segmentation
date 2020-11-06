@@ -10,7 +10,7 @@ class MaskRCNNModel():
     def __init__(self, config):
         self.config = config
 
-        self.model_dir_path = os.path.abspath("./img_sgm_ml/model/checkpoints/")
+        self.model_dir_path = os.path.abspath("./img_sgm_ml/rsc/checkpoints/")
 
         # Create Model
         self.model = modellib.MaskRCNN("inference", config, self.model_dir_path)

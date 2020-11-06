@@ -1,6 +1,5 @@
 from label_studio.ml.utils import is_skipped
 from img_sgm_ml.Mask_RCNN.mrcnn.utils import Dataset
-import numpy as np
 from img_sgm_ml.model.utils import completion_to_mrnn
 
 
