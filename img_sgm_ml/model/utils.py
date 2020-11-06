@@ -134,7 +134,7 @@ def convert_bitmaps_to_mrnn(bitmap_object, config):
     encoded_labels = [invlabels[l] for l in labels]
 
     return {
-        "labels": encoded_labels,
+        "class_ids": encoded_labels,
         "bitmaps": bms,
         "width": width,
         "height": height
@@ -146,3 +146,20 @@ def completion_to_mrnn(completion, config):
         decode_completions_to_bitmap(completion),
         config
     )
+
+
+def devide_completions(completions):
+    """
+    Devide completions into train and validation set.
+    Load allocation from previous trainings from state file
+
+    Args:
+        completions:
+
+    Returns: A set of completions of the first
+
+    """
+    train_set = []
+    val_set = []
+
+    return train_set, val_set

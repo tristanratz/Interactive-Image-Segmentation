@@ -43,9 +43,6 @@ class ModelAPI(LabelStudioMLBase):
         # Generate config
         generate_config(self.config, overwrite=False)
 
-        # Create dataset
-        self.dataset = LabelDataset(self.config)
-
     def predict(self, tasks, **kwargs):
         """
         This method will call the prediction and will format the results into the format expected by label-studio
@@ -137,7 +134,16 @@ class ModelAPI(LabelStudioMLBase):
             **kwargs:
 
         """
-        train_set, val_set = self.dataset.prepare_data(completions=completions)
+        # Create training dataset
+        train_set = LabelDataset(self.config)
+        train_set.load_completions(completions, "training")
+        train_set.prepare()
+
+        # Create validation dataset
+        val_set = LabelDataset(self.config)
+        val_set.load_completions(completions, "validation")
+        val_set.prepare()
+
         model_path = self.model.train(train_set, val_set)
 
         return {'model_path': model_path, 'classes': list(set(self.config.CLASSES))}
@@ -148,7 +154,7 @@ if __name__ == "__main__":
     predictions = m.predict(tasks=[{
         "data": {
             # "image": "http://localhost:8080/data/upload/2ccf6fecb6406e9b3badb399f85070e3-DSC_0020.JPG"
-            #"image": "http://localhost:8080/data/upload/0462f5361cfcd2d02f94d44760b74f0c-DSC_0296.JPG"
+            # "image": "http://localhost:8080/data/upload/0462f5361cfcd2d02f94d44760b74f0c-DSC_0296.JPG"
             "image": "http://localhost:8080/data/upload/a7146602a93f844dbeb3cc21f9dc1fd8-DSC_0277.JPG"
         }
     }])
