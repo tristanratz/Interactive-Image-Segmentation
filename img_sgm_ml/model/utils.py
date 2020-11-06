@@ -1,4 +1,6 @@
 import os
+import random
+import json
 import hashlib
 import xml.etree.ElementTree as ET
 import numpy as np
@@ -148,18 +150,59 @@ def completion_to_mrnn(completion, config):
     )
 
 
-def devide_completions(completions):
+def devide_completions(completions, train_share=0.15):
     """
     Devide completions into train and validation set.
     Load allocation from previous trainings from state file
 
     Args:
-        completions:
+        completions: The complete set of completions
 
     Returns: A set of completions of the first
 
     """
     train_set = []
     val_set = []
+
+    f = os.path.join(
+            os.path.dirname(
+                os.path.dirname(
+                    os.path.realpath(__file__))),
+        "rsc/train_data.json"
+    )
+
+    allocs = []
+    if os.path.isfile(f):
+        allocs = json.load(open(f,"rb"))["completions"]
+
+    alloc_train_ids = [x["id"] for x in allocs if x["subset"] == "train"]
+    alloc_val_ids = [x["id"] for x in allocs if x["subset"] == "val"]
+
+    # Devide into already classified elements, and unclassified
+    train_set = filter(lambda x: x['completions'][0]["id"] in alloc_train_ids, completions)
+    val_set = filter(lambda x: x['completions'][0]["id"] in alloc_val_ids, completions)
+    unallocated = filter(lambda x: not (x['completions'][0]["id"] in alloc_train_ids
+                                        or x['completions'][0]["id"] in alloc_val_ids), completions)
+
+    # allocate yet unclassified elements
+    random.shuffle(unallocated)
+    add_items = int(round(len(completions)*train_share,0)) - len(train_set)
+
+    if add_items > 0:
+        if add_items < len(completions)-1:
+            train_set = train_set + unallocated[:add_items]
+            val_set = val_set + unallocated[add_items:]
+        else:
+            train_set = train_set + unallocated
+    else:
+        val_set = val_set + unallocated
+
+    # Save the allocation to file
+    allocs_train = [{"id": x['completions'][0]["id"], "subset": "train"} for x in train_set]
+    allocs_val = [{"id": x['completions'][0]["id"], "subset": "val"} for x in val_set]
+
+    allocs = allocs_train + allocs_val
+
+    json.dump({"completions": allocs}, open(f, "wb"))
 
     return train_set, val_set

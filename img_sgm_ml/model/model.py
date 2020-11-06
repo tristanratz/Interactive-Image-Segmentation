@@ -32,6 +32,7 @@ class MaskRCNNModel():
         # history = model.keras_model.history.history
         model_path = '../rsc/mask_rcnn_' + '.' + str(time.time()) + '.h5'
         model.keras_model.save_weights(model_path)
+        return model_path
 
     def interference(self, img):
         # Load latest models and do interference when successfull

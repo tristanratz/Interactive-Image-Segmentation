@@ -10,7 +10,7 @@ MRCNN2 = os.path.abspath("./Mask_RCNN/")
 sys.path.append(MRCNN)
 sys.path.append(MRCNN2)
 
-from img_sgm_ml.model.utils import generate_config, generate_color
+from img_sgm_ml.model.utils import generate_config, generate_color, devide_completions
 from img_sgm_ml.model.dataset import LabelDataset
 from label_studio.ml import LabelStudioMLBase
 from img_sgm_ml.model.config import LabelConfig
@@ -134,14 +134,16 @@ class ModelAPI(LabelStudioMLBase):
             **kwargs:
 
         """
+        train_completions, val_completions = devide_completions(completions)
+
         # Create training dataset
         train_set = LabelDataset(self.config)
-        train_set.load_completions(completions, "training")
+        train_set.load_completions(train_completions)
         train_set.prepare()
 
         # Create validation dataset
         val_set = LabelDataset(self.config)
-        val_set.load_completions(completions, "validation")
+        val_set.load_completions(val_completions)
         val_set.prepare()
 
         model_path = self.model.train(train_set, val_set)
