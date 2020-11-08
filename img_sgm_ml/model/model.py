@@ -25,10 +25,10 @@ class MaskRCNNModel():
 
         # Load latest models
         self.reset_model(train=True)
-        model = self.model
+        model = self.train_model
 
         # Do training
-        model.train(train_set, test_set, learning_rate=2 * self.config.LEARNING_RATE, epochs=5, layers='heads') #layers=’heads’)
+        model.train(train_set, test_set, learning_rate=2 * self.config.LEARNING_RATE, epochs=5, layers='heads')
         # history = model.keras_model.history.history
         model_path = '../rsc/mask_rcnn_' + '.' + str(time.time()) + '.h5'
         model.keras_model.save_weights(model_path)
@@ -52,7 +52,7 @@ class MaskRCNNModel():
         coco_path = os.path.join(os.path.abspath("./img_sgm_ml/rsc"), "mask_rcnn_coco.h5")
         model_path = ""
         if 0 < len([file for file in os.listdir(self.model_dir_path)
-                    if not (file.endswith(".py") or file.startswith("."))]) and not os.getenv("COCO"):
+                    if not (file.endswith(".py") or file.startswith(".") or file.startswith("label"))]) and not os.getenv("COCO"):
             model_path = self.model.find_last()[0]
             if train:
                 self.train_model.load_weights(self.model_path, by_name=True)

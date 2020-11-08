@@ -10,7 +10,7 @@ MRCNN2 = os.path.abspath("./Mask_RCNN/")
 sys.path.append(MRCNN)
 sys.path.append(MRCNN2)
 
-from img_sgm_ml.model.utils import generate_config, generate_color, devide_completions
+from img_sgm_ml.model.utils import generate_config, generate_color, devide_completions, transform_url
 from img_sgm_ml.model.dataset import LabelDataset
 from label_studio.ml import LabelStudioMLBase
 from img_sgm_ml.model.config import LabelConfig
@@ -41,7 +41,7 @@ class ModelAPI(LabelStudioMLBase):
         self.model = MaskRCNNModel(self.config)
 
         # Generate config
-        generate_config(self.config, overwrite=False)
+        generate_config(self.config, overwrite=True)
 
     def predict(self, tasks, **kwargs):
         """
@@ -59,8 +59,7 @@ class ModelAPI(LabelStudioMLBase):
 
         for task in tasks:
             # Replace localhost with docker container name, when running with docker
-            if os.getenv("DOCKER"):
-                task['data']['image'] = task['data']['image'].replace("localhost", "labeltool", 1)
+            task['data']['image'] = transform_url(task['data']['image'])
             # Run model detection
             print("Running on {}".format(task['data']['image']))
             # Read image
@@ -134,8 +133,10 @@ class ModelAPI(LabelStudioMLBase):
             **kwargs:
 
         """
+        print("-----Generating config-----")
         train_completions, val_completions = devide_completions(completions)
 
+        print("-----Prepare datasets-----")
         # Create training dataset
         train_set = LabelDataset(self.config)
         train_set.load_completions(train_completions)
@@ -146,6 +147,7 @@ class ModelAPI(LabelStudioMLBase):
         val_set.load_completions(val_completions)
         val_set.prepare()
 
+        print("-----Train model-----")
         model_path = self.model.train(train_set, val_set)
 
         return {'model_path': model_path, 'classes': list(set(self.config.CLASSES))}

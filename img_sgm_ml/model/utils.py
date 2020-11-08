@@ -9,6 +9,13 @@ from mrcnn import utils
 from img_sgm_ml.rle.decode import decode
 
 
+def transform_url(url):
+    url = url.replace(" ", "%20")
+    if os.getenv("DOCKER"):
+        url = url.replace("localhost", "labeltool", 1)
+    return url
+
+
 def download_weights():
     weights_path = os.path.join(
         os.path.dirname(
@@ -99,7 +106,8 @@ def decode_completions_to_bitmap(completion):
 
         dec = decode(rle)
         image = np.reshape(dec, [height, width, 4])[:, :, 3]
-        bitmap = image.vectorize(lambda l: 1 if l > 0.4 else 0)
+        f = np.vectorize(lambda l: 1 if l > 0.4 else 0)
+        bitmap = f(image)
         bitmaps.append(bitmap)
     return {
         "results_count": counter,
@@ -123,7 +131,7 @@ def convert_bitmaps_to_mrnn(bitmap_object, config):
 
     """
     bitmaps = bitmap_object["bitmaps"]
-    counter = bitmap_object["result_count"]
+    counter = bitmap_object["results_count"]
     labels = bitmap_object["labels"]
     height = bitmaps[0].shape[0]
     width = bitmaps[0].shape[1]
@@ -134,10 +142,11 @@ def convert_bitmaps_to_mrnn(bitmap_object, config):
 
     invlabels = dict(zip(config.CLASSES.values(), config.CLASSES.keys()))
     encoded_labels = [invlabels[l] for l in labels]
+    print("Encoded labels:", encoded_labels)
 
     return {
-        "class_ids": encoded_labels,
-        "bitmaps": bms,
+        "class_ids": np.array(encoded_labels, np.int32),
+        "bitmaps": bms.astype(np.bool),
         "width": width,
         "height": height
     }
@@ -150,7 +159,7 @@ def completion_to_mrnn(completion, config):
     )
 
 
-def devide_completions(completions, train_share=0.15):
+def devide_completions(completions, train_share=0.85):
     """
     Devide completions into train and validation set.
     Load allocation from previous trainings from state file
@@ -161,28 +170,27 @@ def devide_completions(completions, train_share=0.15):
     Returns: A set of completions of the first
 
     """
-    train_set = []
-    val_set = []
+    completions = [c for c in completions]
 
     f = os.path.join(
             os.path.dirname(
                 os.path.dirname(
                     os.path.realpath(__file__))),
-        "rsc/train_data.json"
+            "rsc/data_allocation.json"
     )
 
     allocs = []
     if os.path.isfile(f):
-        allocs = json.load(open(f,"rb"))["completions"]
+        allocs = json.load(open(f, "r"))["completions"]
 
     alloc_train_ids = [x["id"] for x in allocs if x["subset"] == "train"]
     alloc_val_ids = [x["id"] for x in allocs if x["subset"] == "val"]
 
     # Devide into already classified elements, and unclassified
-    train_set = filter(lambda x: x['completions'][0]["id"] in alloc_train_ids, completions)
-    val_set = filter(lambda x: x['completions'][0]["id"] in alloc_val_ids, completions)
-    unallocated = filter(lambda x: not (x['completions'][0]["id"] in alloc_train_ids
-                                        or x['completions'][0]["id"] in alloc_val_ids), completions)
+    train_set = list(filter(lambda x: x['completions'][0]["id"] in alloc_train_ids, completions))
+    val_set = list(filter(lambda x: x['completions'][0]["id"] in alloc_val_ids, completions))
+    unallocated = list(filter(lambda x: not (x['completions'][0]["id"] in alloc_train_ids
+                                             or x['completions'][0]["id"] in alloc_val_ids), completions))
 
     # allocate yet unclassified elements
     random.shuffle(unallocated)
@@ -203,6 +211,7 @@ def devide_completions(completions, train_share=0.15):
 
     allocs = allocs_train + allocs_val
 
-    json.dump({"completions": allocs}, open(f, "wb"))
+    json.dump({"completions": allocs}, open(f, "w"))
+    print("Allocation was written. Completions:", len(allocs))
 
     return train_set, val_set

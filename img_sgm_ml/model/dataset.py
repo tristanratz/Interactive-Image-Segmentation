@@ -1,6 +1,7 @@
+import os
 from label_studio.ml.utils import is_skipped
 from img_sgm_ml.Mask_RCNN.mrcnn.utils import Dataset
-from img_sgm_ml.model.utils import completion_to_mrnn
+from img_sgm_ml.model.utils import completion_to_mrnn, transform_url
 
 
 class LabelDataset(Dataset):
@@ -12,7 +13,7 @@ class LabelDataset(Dataset):
 
         # Add classes
         for idx in config.CLASSES:
-            self.add_class(config.CLASSES[idx], idx, config.CLASSES[idx])
+            self.add_class("img", idx, config.CLASSES[idx])
 
     def load_completions(self, completions):
         """ Prepare the data
@@ -24,7 +25,8 @@ class LabelDataset(Dataset):
             if is_skipped(completion):
                 continue
 
-            image_url = completion['data']["image"]
+            image_url = transform_url(completion['data']["image"])
+
             bit_dict = completion_to_mrnn(completion['completions'][0], self.config)
 
             self.add_image(
