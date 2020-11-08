@@ -6,6 +6,8 @@ Create image segmentations and get on the fly predictions for the dataset your l
 It was build with the help of Matterports MaskRCNN implementation and is meant to help you label images.
 After configuring the program for your needs and labeling a certain amount of images, the program should start to label images itself.
 
+![Demo Image](https://raw.githubusercontent.com/tristanratz/Label-Studio-image-segmentation-ML-Module/main/rsc/demo.png)
+
 ## Installation
 
 First clone the project
