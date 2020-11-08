@@ -5,20 +5,22 @@ from img_sgm_ml.model.utils import completion_to_mrnn, transform_url
 
 
 class LabelDataset(Dataset):
+    """ This class turns the label studio completions into readable datasets"""
 
     def __init__(self, config):
         super(LabelDataset, self).__init__()
 
         self.config = config
 
-        # Add classes
+        # Load classes
         for idx in config.CLASSES:
             self.add_class("img", idx, config.CLASSES[idx])
 
     def load_completions(self, completions):
-        """ Prepare the data
-        completions: The already labeled images
-        subset: Subset to load: train or val
+        """
+        Prepare the completions
+        Args:
+            completions: Already labeled label studio images
         """
         print('Collecting completions...')
         for completion in completions:
@@ -27,8 +29,10 @@ class LabelDataset(Dataset):
 
             image_url = transform_url(completion['data']["image"])
 
+            # Convert completions to mrnn format
             bit_dict = completion_to_mrnn(completion['completions'][0], self.config)
 
+            # Add converted completion to Dataset
             self.add_image(
                 "img",
                 image_id=completion['completions'][0]["id"],  # use file name as a unique image id
@@ -46,5 +50,6 @@ class LabelDataset(Dataset):
             super(self.__class__, self).image_reference(image_id)
 
     def load_mask(self, image_id):
+        """ Return mrnn the bitmask and the accompanying class ids """
         info = self.image_info[image_id]
         return info["bitmask"], info["class_ids"]

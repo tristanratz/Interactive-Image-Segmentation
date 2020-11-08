@@ -73,14 +73,10 @@ class ModelAPI(LabelStudioMLBase):
         # Build the detections into an array
         results = []
         for prediction in predictions:
-            # labels = []
-            # for id in prediction["class_ids"]:
-            #     labels.append(self.config.CLASSES[id])
-
             for i in range(prediction['masks'].shape[2]):
                 shape = np.array(prediction['masks'][:, :, i]).shape
 
-                # Expand mask with 3 other dimensions
+                # Expand mask with 3 other dimensions to get RGBa Image
                 mask3d = np.zeros((shape[0], shape[1], 4), dtype=np.uint8)
                 expanded_mask = np.array(prediction['masks'][:, :, i:i + 1])
                 mask3d[:, :, :] = expanded_mask
@@ -94,18 +90,22 @@ class ModelAPI(LabelStudioMLBase):
                 # multiply mask_image with array to get a bgr image with the color of the mask/name
                 mask_image = np.array(mask_image * mask3d, dtype=np.uint8)
 
+                # Write images to see if everything is alright
                 if not os.getenv("DOCKER"):
                     plt.imsave(f"./out/mask_{i}.png", prediction['masks'][:, :, i])
                     plt.imsave(f"./out/mask_{i}_expanded.png", mask3d[:, :, 3])
                     plt.imsave(f"./out/mask_{i}_color.png", mask_image)
 
+                # Flatten and encode
                 flat = mask_image.flatten()
                 rle = encode(flat, len(flat))
 
+                # Write images to see if everything is alright
                 if not os.getenv("DOCKER"):
                     print("Encode and decode did work:", np.array_equal(flat, decode(rle)))
                     plt.imsave(f"./out/mask_{i}_flattened.png", np.reshape(flat, [shape[0], shape[1], 4]))
 
+                # Squeeze into label studio json format
                 results.append({
                     'from_name': self.from_name,
                     'to_name': self.to_name,
@@ -118,14 +118,13 @@ class ModelAPI(LabelStudioMLBase):
                     "score": float(prediction["scores"][i]),
                 })
 
-                # Convert to segmentation/polygon format
+                # Other possible way to consider: Convert to segmentation/polygon format
                 # https://github.com/cocodataset/cocoapi/issues/131
-        # print(results)
         return [{"result": results}]
 
     def fit(self, completions, workdir=None, **kwargs) -> Dict:
         """
-        Formats the completions and images into the expected format
+        Formats the completions and images into the expected format and trains the model
 
         Args:
             completions: Array of labeled images
@@ -133,7 +132,7 @@ class ModelAPI(LabelStudioMLBase):
             **kwargs:
 
         """
-        print("-----Generating config-----")
+        print("-----Devide data into training and validation sets-----")
         train_completions, val_completions = devide_completions(completions)
 
         print("-----Prepare datasets-----")

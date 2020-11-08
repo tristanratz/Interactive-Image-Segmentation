@@ -18,6 +18,7 @@ def transform_url(url):
 
 
 def download_weights():
+    """Downloads coco model if not already downloaded"""
     weights_path = os.path.join(
         os.path.dirname(
             os.path.dirname(
@@ -30,7 +31,7 @@ def download_weights():
 
 
 def generate_color(string: str) -> (int, int, int, int):
-    # name_hash = hash(string)
+    """Create RGB Color for a specific name"""
     # Generate hash
     result = hashlib.md5(bytes(string.encode('utf-8')))
     name_hash = int(result.hexdigest(), 16)
@@ -41,6 +42,9 @@ def generate_color(string: str) -> (int, int, int, int):
 
 
 def generate_config(config, overwrite: bool = False):
+    """Generate config.xml for label-studio."""
+
+    # config file
     file = os.path.join(
         os.path.dirname(
             os.path.dirname(
@@ -49,10 +53,12 @@ def generate_config(config, overwrite: bool = False):
                 )
             )
         ), "img_sgm/config.xml")
+
     if not overwrite and os.path.isfile(file):
         print("Using existing config.")
         return
-    print("Generating config...")
+
+    print("Generating XML config...")
     view = ET.Element('View')
     brushlabels = ET.SubElement(view, 'BrushLabels')
     brushlabels.set("name", "tag")
@@ -72,7 +78,7 @@ def generate_config(config, overwrite: bool = False):
 
     tree = ET.ElementTree(view)
     tree.write(file)
-    print("Config ready")
+    print("Config generated.")
 
 
 def decode_completions_to_bitmap(completion):
@@ -107,7 +113,7 @@ def decode_completions_to_bitmap(completion):
 
         dec = decode(rle)
         image = np.reshape(dec, [height, width, 4])[:, :, 3]
-        f = np.vectorize(lambda l: 1 if l > 0.4 else 0)
+        f = np.vectorize(lambda l: 1 if (float(l)/255) > 0.4 else 0)
         bitmap = f(image)
         bitmaps.append(bitmap)
     return {
@@ -127,7 +133,7 @@ def convert_bitmaps_to_mrnn(bitmap_object, config):
 
     Returns:
     {   labels: [label_1_index, label_2_index...]
-        bitmaps: [ [numpy uint8 image (width x height x instance_count)] ]
+        bitmaps: [ [numpy bool image (width x height x instance_count)] ]
     }
 
     """

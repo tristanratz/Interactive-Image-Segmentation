@@ -52,6 +52,11 @@ label-studio init -i ./upload/ --input-format image-dir
 or import them via the web interface (http://localhost:8080/import). Then (re)start the program.
 Now you can label your images and train the model under http://localhost:8080/model.
 
+#### Change of classes
+
+Make sure you delete the contents of ```rsc/checkpoints``` directory after you decided to change the classes you train on. 
+Otherwise the model will try to load an existing model and will try to train it even if the classes do not match.
+
 ## Use your own model
 
 This projects holds a complete implementation to communicate with Label Studio and to predicting image segmentations with MaskRCNN.

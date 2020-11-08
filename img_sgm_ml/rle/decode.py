@@ -1,7 +1,7 @@
 import numpy as np
 
 from img_sgm_ml.rle.inputstream import InputStream
-
+"""This file was taken from label_studio_converter to turn RLE into Numpy Arrays"""
 
 def access_bit(data, num):
     """ from bytes array to bits by num position
