@@ -1,9 +1,9 @@
-import sys
 import os
+import sys
 from typing import Dict
 
-from img_sgm_ml.rle.encode import encode
 from img_sgm_ml.rle.decode import decode
+from img_sgm_ml.rle.encode import encode
 
 MRCNN = os.path.abspath("./img_sgm_ml/Mask_RCNN/")
 MRCNN2 = os.path.abspath("./Mask_RCNN/")
@@ -107,15 +107,15 @@ class ModelAPI(LabelStudioMLBase):
                     plt.imsave(f"./out/mask_{i}_flattened.png", np.reshape(flat, [shape[0], shape[1], 4]))
 
                 results.append({
-                        'from_name': self.from_name,
-                        'to_name': self.to_name,
-                        'type': 'brushlabels',
-                        'value': {
-                            'brushlabels': [self.config.CLASSES[prediction["class_ids"][i]]],
-                            "format": "rle",
-                            "rle": rle.tolist(),
-                        },
-                        "score": float(prediction["scores"][i]),
+                    'from_name': self.from_name,
+                    'to_name': self.to_name,
+                    'type': 'brushlabels',
+                    'value': {
+                        'brushlabels': [self.config.CLASSES[prediction["class_ids"][i]]],
+                        "format": "rle",
+                        "rle": rle.tolist(),
+                    },
+                    "score": float(prediction["scores"][i]),
                 })
 
                 # Convert to segmentation/polygon format

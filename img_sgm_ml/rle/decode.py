@@ -1,5 +1,6 @@
-from img_sgm_ml.rle.inputstream import InputStream
 import numpy as np
+
+from img_sgm_ml.rle.inputstream import InputStream
 
 
 def access_bit(data, num):
@@ -22,7 +23,7 @@ def decode(rle, verbose=0):
     input = InputStream(bytes2bit(rle))
     num = input.read(32)
     word_size = input.read(5) + 1
-    rle_sizes = [input.read(4)+1 for _ in range(4)]
+    rle_sizes = [input.read(4) + 1 for _ in range(4)]
 
     if verbose == 1:
         print('RLE params:', num, 'values', word_size, 'word_size', rle_sizes, 'rle_sizes')

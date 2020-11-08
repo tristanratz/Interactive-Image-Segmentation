@@ -4,6 +4,6 @@ class InputStream:
         self.i = 0
 
     def read(self, size):
-        out = self.data[self.i:self.i+size]
+        out = self.data[self.i:self.i + size]
         self.i += size
         return int(out, 2)

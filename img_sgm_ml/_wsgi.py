@@ -1,31 +1,31 @@
-import os
 import argparse
 import logging.config
+import os
 
 from img_sgm_ml.api import ModelAPI
 
 logging.config.dictConfig({
-  "version": 1,
-  "formatters": {
-    "standard": {
-      "format": "[%(asctime)s] [%(levelname)s] [%(name)s::%(funcName)s::%(lineno)d] %(message)s"
+    "version": 1,
+    "formatters": {
+        "standard": {
+            "format": "[%(asctime)s] [%(levelname)s] [%(name)s::%(funcName)s::%(lineno)d] %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "stream": "ext://sys.stdout",
+            "formatter": "standard"
+        }
+    },
+    "root": {
+        "level": "ERROR",
+        "handlers": [
+            "console"
+        ],
+        "propagate": True
     }
-  },
-  "handlers": {
-    "console": {
-      "class": "logging.StreamHandler",
-      "level": "DEBUG",
-      "stream": "ext://sys.stdout",
-      "formatter": "standard"
-    }
-  },
-  "root": {
-    "level": "ERROR",
-    "handlers": [
-      "console"
-    ],
-    "propagate": True
-  }
 })
 
 from label_studio.ml import init_app
@@ -60,12 +60,14 @@ if __name__ == "__main__":
     if args.log_level:
         logging.root.setLevel(args.log_level)
 
+
     def isfloat(value):
         try:
             float(value)
             return True
         except ValueError:
             return False
+
 
     def parse_kwargs():
         param = dict()
@@ -81,6 +83,7 @@ if __name__ == "__main__":
             else:
                 param[k] = v
         return param
+
 
     kwargs = parse_kwargs() if args.kwargs else dict()
 

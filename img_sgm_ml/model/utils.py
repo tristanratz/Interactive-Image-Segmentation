@@ -1,8 +1,9 @@
+import hashlib
+import json
 import os
 import random
-import json
-import hashlib
 import xml.etree.ElementTree as ET
+
 import numpy as np
 from mrcnn import utils
 
@@ -173,10 +174,10 @@ def devide_completions(completions, train_share=0.85):
     completions = [c for c in completions]
 
     f = os.path.join(
+        os.path.dirname(
             os.path.dirname(
-                os.path.dirname(
-                    os.path.realpath(__file__))),
-            "rsc/data_allocation.json"
+                os.path.realpath(__file__))),
+        "rsc/data_allocation.json"
     )
 
     allocs = []
@@ -194,10 +195,10 @@ def devide_completions(completions, train_share=0.85):
 
     # allocate yet unclassified elements
     random.shuffle(unallocated)
-    add_items = int(round(len(completions)*train_share,0)) - len(train_set)
+    add_items = int(round(len(completions) * train_share, 0)) - len(train_set)
 
     if add_items > 0:
-        if add_items < len(completions)-1:
+        if add_items < len(completions) - 1:
             train_set = train_set + unallocated[:add_items]
             val_set = val_set + unallocated[add_items:]
         else:

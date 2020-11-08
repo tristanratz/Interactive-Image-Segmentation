@@ -1,5 +1,5 @@
-import os
 from label_studio.ml.utils import is_skipped
+
 from img_sgm_ml.Mask_RCNN.mrcnn.utils import Dataset
 from img_sgm_ml.model.utils import completion_to_mrnn, transform_url
 
@@ -48,4 +48,3 @@ class LabelDataset(Dataset):
     def load_mask(self, image_id):
         info = self.image_info[image_id]
         return info["bitmask"], info["class_ids"]
-

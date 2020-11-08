@@ -1,7 +1,8 @@
 import math
+
 import numpy as np
 
-U32 = int(math.pow(2,32))
+U32 = int(math.pow(2, 32))
 
 
 class OutputStream:
@@ -49,13 +50,13 @@ class OutputStream:
             self._write(x, word_size)
 
     def write_bit(self, x):
-        self.bit = self.bit-1
+        self.bit = self.bit - 1
         self.buffer[self.pos] = (self.buffer[self.pos] & ~(1 << self.bit)) | (x << self.bit)
 
         if self.bit == 0:
             self.ensure_size()
             self.bit = 8
-            self.bitpos = self.bitpos+1
+            self.bitpos = self.bitpos + 1
 
     def write_words(self, data, word_size):
         for v in data:
@@ -87,7 +88,7 @@ class OutputStream:
         return self.buffer[0:self.pos + (1 if self.bit & 7 else 0)]
 
     def ensure_size(self):
-        self.pos = self.pos+1
+        self.pos = self.pos + 1
         if self.pos == len(self.buffer):
             b = np.empty(len(self.buffer) << 1, dtype=np.uint8)
             b[:len(self.buffer)] = self.buffer

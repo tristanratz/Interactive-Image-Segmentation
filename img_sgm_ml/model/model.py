@@ -51,8 +51,11 @@ class MaskRCNNModel():
     def reset_model(self, train=False):
         coco_path = os.path.join(os.path.abspath("./img_sgm_ml/rsc"), "mask_rcnn_coco.h5")
         model_path = ""
-        if 0 < len([file for file in os.listdir(self.model_dir_path)
-                    if not (file.endswith(".py") or file.startswith(".") or file.startswith("label"))]) and not os.getenv("COCO"):
+        model_files = [file for file in os.listdir(self.model_dir_path)
+                       if not (file.endswith(".py") or
+                               file.startswith(".") or
+                               file.startswith("label"))]
+        if 0 < len(model_files) and not os.getenv("COCO"):
             model_path = self.model.find_last()[0]
             if train:
                 self.train_model.load_weights(self.model_path, by_name=True)

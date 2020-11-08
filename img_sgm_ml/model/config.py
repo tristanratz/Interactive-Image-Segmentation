@@ -114,5 +114,3 @@ class LabelConfig(Config):
 
     # Number of classes (including background)
     NUM_CLASSES = 4 + 1  # Background + classes
-
-
