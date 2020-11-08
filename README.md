@@ -1,7 +1,7 @@
 # Image Segmentation Module for Label Studio
 
-This module was build facilitate the creation of large image segmentation datasets with artificial intelligence with label-studio.
-Create image segmentations and get in the fly predictions for the dataset your labeling.
+This module was build facilitate the creation of large image segmentation datasets with the help of artificial intelligence with label-studio.
+Create image segmentations and get on the fly predictions for the dataset your labeling.
 
 It was build with the help of Matterports MaskRCNN implementation and is meant to help you label images.
 After configuring the program for your needs and labeling a certain amount of images, the program should start to label images itself.
@@ -16,7 +16,7 @@ git clone --recurse-submodules -j8 git://github.com/tristanratz/bar.git
 
 Make sure you have docker and docker-compose installed to start the ml module.
 
-### Run
+## Run
 
 To start the ML Module change to the ```img-sgm-ml``` folder and execute the following.
 ```bash
@@ -29,23 +29,40 @@ After it finished learning you can continue labeling and should get predictions 
 
 Let the pre-labeling begin...!
 
-## Own data
+## Use with own data
 
 To create own labels go into ```img_sgm_ml/model/config.py``` and enter your labels in the following format
 
 ```python
+CLASSES = {
+                0: '__background__',
+                1: 'YOUR_FIRST_CLASS',
+                2: ...
+          }       
 ```
+Make sure that you safe the first spot for ```__background__```.
+After that enter your class count (+1 for background)
 
-After that add the images you want to label with the following command to the labeling tool:
+Lastly add the images you want to label with the following command to the labeling tool:
 
 ```bash
 label-studio init -i ./upload/ --input-format image-dir
 ```
 
 or import them via the web interface (http://localhost:8080/import). Then (re)start the program.
+Now you can label your images and train the model under http://localhost:8080/model.
+
+## Use your own model
+
+This projects holds a complete implementation to communicate with Label Studio and to predicting image segmentations with MaskRCNN.
+If you want to use a diffrent model for image segmentation you may have to rewrite or change the ```img_sgm_ml/model/model.py``` and
+```img_sgm_ml/model/dataset.py``` classes. 
+
+This project contains code to transform the Label Studio format into the Matterport/MaskRCNN format.
 
 ## Disclaimer
 
-This project was created for my Bachelor Thesis at the TU Darmstadt. (read it here)
+This project was created for my Bachelor Thesis "Facilitating the creation of comprehensive datasets with
+artificial intelligence" at the TU Darmstadt. (read it here)
 
 A special thanks to the Finanz Informatik Solutions Plus GmbH for the great support!
