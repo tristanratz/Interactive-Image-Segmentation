@@ -65,6 +65,19 @@ If you want to use a diffrent model for image segmentation you may have to rewri
 
 This project contains code to transform the Label Studio format into the Matterport/MaskRCNN format.
 
+## Citation
+```bibtex
+@misc{LS_IMG_SGM_MODULE,
+  title={{Interactive Labeling}: Facilitating the creation of comprehensive datasets with artificial intelligence},
+  url={https://github.com/tristanratz/Label-Studio-image-segmentation-ML-Module},
+  note={Open source software available from ttps://github.com/tristanratz/Label-Studio-image-segmentation-ML-Module},
+  author={
+    Tristan Ratz
+  },
+  year={2020},
+}
+```
+
 ## Disclaimer
 
 This project was created for my Bachelor Thesis "Facilitating the creation of comprehensive datasets with
