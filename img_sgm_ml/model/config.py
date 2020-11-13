@@ -23,10 +23,36 @@ class LabelConfig(Config):
     DETECTION_MIN_CONFIDENCE = 0.9
 
     # Classes (including background)
-    CLASSES = {0: u'__background__',
-               1: u'kopf',
-               2: u'fenster',
-               3: u'licht',
+    CLASSES = {
+               0 : u'__background__',
+               1 : u'backpack',
+               2 : u'bench',
+               3 : u'bottle',
+               4 : u'Brechstange',
+               5 : u'cell phone',
+               6 : u'chair',
+               7 : u'clock',
+               8 : u'cup',
+               9 : u'dining table',
+               10: u'Flexschlauch',
+               11: u'GasCombo',
+               12: u'Gasflasche',
+               13: u'Hammer',
+               14: u'handbag',
+               15: u'HEMA',
+               16: u'keyboard',
+               17: u'laptop',
+               18: u'person',
+               19: u'potted plant',
+               20: u'Stirnlampe',
+               21: u'Sturmmaske',
+               22: u'suitcase',
+               23: u'Tasche',
+               24: u'tv',
+               25: u'umbrella',
+               26: u'vase',
+               27: u'wine glass',
+               28: u'Muetze'
                }
 
     # Coco classes (including background)

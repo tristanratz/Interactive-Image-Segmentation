@@ -169,3 +169,4 @@ if __name__ == "__main__":
     for p in predictions:
         plt.imsave(f"./out/{p['result'][0]['value']['brushlabels'][0]}.png",
                    np.reshape(decode(p["result"][0]["value"]["rle"]), [height, width, 4])[:, :, 3] / 255)
+
