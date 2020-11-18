@@ -10,7 +10,7 @@ MRCNN2 = os.path.abspath("./Mask_RCNN/")
 sys.path.append(MRCNN)
 sys.path.append(MRCNN2)
 
-from img_sgm_ml.model.utils import generate_config, generate_color, devide_completions, transform_url
+from img_sgm_ml.model.utils import generate_color, devide_completions, transform_url
 from img_sgm_ml.model.dataset import LabelDataset
 from label_studio.ml import LabelStudioMLBase
 from img_sgm_ml.model.config import LabelConfig
@@ -39,9 +39,6 @@ class ModelAPI(LabelStudioMLBase):
 
         # Load model
         self.model = MaskRCNNModel(self.config)
-
-        # Generate config
-        generate_config(self.config, overwrite=True)
 
     def predict(self, tasks, **kwargs):
         """

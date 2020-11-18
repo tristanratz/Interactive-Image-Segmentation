@@ -3,6 +3,8 @@ import logging.config
 import os
 
 from img_sgm_ml.api import ModelAPI
+from img_sgm_ml.model.config import LabelConfig
+from img_sgm_ml.model.utils import generate_config
 
 logging.config.dictConfig({
     "version": 1,
@@ -27,6 +29,11 @@ logging.config.dictConfig({
         "propagate": True
     }
 })
+
+# Generate config
+print("Generating config.xml...")
+config = LabelConfig()
+generate_config(config, overwrite=True)
 
 from label_studio.ml import init_app
 
