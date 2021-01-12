@@ -24,10 +24,11 @@ class LabelConfig(Config):
 
     # Classes (including background)
     CLASSES = {0: u'__background__',
-               1: u'kopf',
-               2: u'fenster',
-               3: u'licht',
+               1: u'balloon',
                }
+
+    # Number of classes (including background)
+    NUM_CLASSES = 1 + 1  # Background + classes
 
     # Coco classes (including background)
     # CLASSES = {0: u'__background__',
@@ -111,6 +112,3 @@ class LabelConfig(Config):
     #      78: u'teddy bear',
     #      79: u'hair drier',
     #      80: u'toothbrush'}
-
-    # Number of classes (including background)
-    NUM_CLASSES = 4 + 1  # Background + classes

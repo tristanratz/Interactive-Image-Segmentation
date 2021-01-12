@@ -129,7 +129,7 @@ class ModelAPI(LabelStudioMLBase):
             **kwargs:
 
         """
-        print("-----Devide data into training and validation sets-----")
+        print("-----Divide data into training and validation sets-----")
         train_completions, val_completions = devide_completions(completions)
 
         print("-----Prepare datasets-----")

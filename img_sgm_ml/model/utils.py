@@ -71,10 +71,11 @@ def generate_config(config, overwrite: bool = False):
 
     for key in config.CLASSES:
         lclass = config.CLASSES[key]
-        label = ET.SubElement(brushlabels, 'Label')
-        label.set("value", lclass)
-        (r, g, b, a) = generate_color(lclass)
-        label.set("background", f"rgba({r},{g},{b},{round((a / 255), 2)})")
+        if lclass != u"__background__":
+            label = ET.SubElement(brushlabels, 'Label')
+            label.set("value", lclass)
+            (r, g, b, a) = generate_color(lclass)
+            label.set("background", f"rgba({r},{g},{b},{round((a / 255), 2)})")
 
     tree = ET.ElementTree(view)
     tree.write(file)
