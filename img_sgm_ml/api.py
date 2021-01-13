@@ -19,6 +19,13 @@ from img_sgm_ml.model.model import MaskRCNNModel
 import matplotlib.pyplot as plt
 import skimage
 import numpy as np
+import logging
+
+logging.basicConfig(filename="./img_sgm_ml/rsc/log.log",
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG)
 
 
 class ModelAPI(LabelStudioMLBase):
@@ -58,14 +65,14 @@ class ModelAPI(LabelStudioMLBase):
             # Replace localhost with docker container name, when running with docker
             task['data']['image'] = transform_url(task['data']['image'])
             # Run model detection
-            print("Running on {}".format(task['data']['image']))
+            logging.info(str("Running on {}".format(task['data']['image'])))
             # Read image
             image = skimage.io.imread(task['data']['image'])
             images.append(image)
 
         # Detect objects
         predictions = self.model.batchInterfere(images)
-        print("Inference finished. Start conversion.")
+        logging.info("Inference finished. Start conversion.")
 
         # Build the detections into an array
         results = []
@@ -99,7 +106,7 @@ class ModelAPI(LabelStudioMLBase):
 
                 # Write images to see if everything is alright
                 if not os.getenv("DOCKER"):
-                    print("Encode and decode did work:", np.array_equal(flat, decode(rle)))
+                    logging.info("Encode and decode did work:" + str(np.array_equal(flat, decode(rle))))
                     plt.imsave(f"./out/mask_{i}_flattened.png", np.reshape(flat, [shape[0], shape[1], 4]))
 
                 # Squeeze into label studio json format
@@ -129,22 +136,26 @@ class ModelAPI(LabelStudioMLBase):
             **kwargs:
 
         """
-        print("-----Divide data into training and validation sets-----")
+        logging.info("-----Divide data into training and validation sets-----")
         train_completions, val_completions = devide_completions(completions)
 
-        print("-----Prepare datasets-----")
+        logging.info("-----Prepare datasets-----")
         # Create training dataset
         train_set = LabelDataset(self.config)
         train_set.load_completions(train_completions)
-        train_set.prepare()
 
         # Create validation dataset
         val_set = LabelDataset(self.config)
         val_set.load_completions(val_completions)
+
+        del completions
+
+        train_set.prepare()
         val_set.prepare()
 
-        print("-----Train model-----")
+        logging.info("-----Train model-----")
         model_path = self.model.train(train_set, val_set)
+        logging.info("-----Training finished-----")
 
         return {'model_path': model_path, 'classes': list(set(self.config.CLASSES))}
 

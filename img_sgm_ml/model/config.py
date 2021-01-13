@@ -22,13 +22,13 @@ class LabelConfig(Config):
     # Skip detections with < 90% confidence
     DETECTION_MIN_CONFIDENCE = 0.9
 
+    # Number of classes (including background)
+    NUM_CLASSES = 2  # Background + classes
+
     # Classes (including background)
     CLASSES = {0: u'__background__',
                1: u'balloon',
                }
-
-    # Number of classes (including background)
-    NUM_CLASSES = 1 + 1  # Background + classes
 
     # Coco classes (including background)
     # CLASSES = {0: u'__background__',

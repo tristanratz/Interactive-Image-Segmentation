@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 import random
+import logging
 import xml.etree.ElementTree as ET
 
 import numpy as np
@@ -98,6 +99,7 @@ def decode_completions_to_bitmap(completion):
     labels = []
     bitmaps = []
     counter = 0
+    logging.debug("Decoding completion")
     for result in completion['result']:
         if result['type'] != 'brushlabels':
             continue
@@ -112,11 +114,13 @@ def decode_completions_to_bitmap(completion):
         width = result['original_width']
         height = result['original_height']
 
+        logging.debug("Decoding RLE")
         dec = decode(rle)
         image = np.reshape(dec, [height, width, 4])[:, :, 3]
         f = np.vectorize(lambda l: 1 if (float(l)/255) > 0.4 else 0)
         bitmap = f(image)
         bitmaps.append(bitmap)
+    logging.debug("Decoding finished")
     return {
         "results_count": counter,
         "labels": labels,

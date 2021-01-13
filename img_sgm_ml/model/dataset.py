@@ -2,6 +2,7 @@ from label_studio.ml.utils import is_skipped
 
 from img_sgm_ml.Mask_RCNN.mrcnn.utils import Dataset
 from img_sgm_ml.model.utils import completion_to_mrnn, transform_url
+import logging
 
 
 class LabelDataset(Dataset):
@@ -14,7 +15,8 @@ class LabelDataset(Dataset):
 
         # Load classes
         for idx in config.CLASSES:
-            self.add_class("img", idx, config.CLASSES[idx])
+            if config.CLASSES[idx] != '__background__':
+                self.add_class("img", idx, config.CLASSES[idx])
 
     def load_completions(self, completions):
         """
@@ -29,9 +31,11 @@ class LabelDataset(Dataset):
 
             image_url = transform_url(completion['data']["image"])
 
+            logging.debug("Convert completions to mrnn format for image " + image_url)
             # Convert completions to mrnn format
             bit_dict = completion_to_mrnn(completion['completions'][0], self.config)
 
+            logging.debug("Add converted completion to Dataset")
             # Add converted completion to Dataset
             self.add_image(
                 "img",
