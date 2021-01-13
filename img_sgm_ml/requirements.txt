@@ -1,6 +1,8 @@
 matplotlib
 label-studio
 opencv-python
+
+# https://github.com/neuropoly/spinalcordtoolbox/issues/2987
 h5py~=2.10.0
 # numba
 

@@ -39,7 +39,7 @@ class MaskRCNNModel():
 
         # history = model.keras_model.history.history
 
-        model_path = '../rsc/mask_rcnn_' + '.' + str(time.time()) + '.h5'
+        model_path = os.path.join(self.model_dir_path, 'mask_rcnn_' + str(time.time()) + '.h5')
         model.keras_model.save_weights(model_path)
         return model_path
 
@@ -85,19 +85,16 @@ class MaskRCNNModel():
 
         """
         # Path to the COCO Model
-        coco_path = os.path.join(os.path.abspath("./img_sgm_ml/rsc"), "mask_rcnn_coco.h5")
+        coco_path = os.path.join(os.path.abspath("./img_sgm_ml/rsc/"), "mask_rcnn_coco.h5")
         model_path = ""
 
         # Files in the model directory
         model_files = [file for file in os.listdir(self.model_dir_path)
-                       if not (file.endswith(".py") or
-                               file.startswith(".") or
-                               file.startswith("label"))]
+                       if file.endswith(".h5")]
         if 0 < len(model_files) and not os.getenv("COCO"):
             model_path = self.model.find_last()[0]
-            if train:
-                self.train_model.load_weights(self.model_path, by_name=True)
-                return True
+            self.train_model.load_weights(model_path, by_name=True)
+            return True
         else:
             model_path = coco_path
             if train:
