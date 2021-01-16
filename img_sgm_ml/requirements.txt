@@ -1,5 +1,5 @@
 matplotlib
-label-studio
+label-studio==0.9.0
 opencv-python
 
 # https://github.com/neuropoly/spinalcordtoolbox/issues/2987

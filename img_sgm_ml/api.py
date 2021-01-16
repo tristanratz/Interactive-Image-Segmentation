@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import skimage
 import numpy as np
 import logging
+import json
 
 logging.basicConfig(filename="./img_sgm_ml/rsc/log.log",
                     filemode='a',
@@ -157,7 +158,12 @@ class ModelAPI(LabelStudioMLBase):
         model_path = self.model.train(train_set, val_set)
         logging.info("-----Training finished-----")
 
-        return {'model_path': model_path, 'classes': list(set(self.config.CLASSES))}
+        classes = []
+        for idx in self.config.CLASSES:
+            if self.config.CLASSES[idx] != '__background__':
+                classes.append(self.config.CLASSES[idx])
+
+        return {'model_path': model_path, 'classes': classes}
 
 
 if __name__ == "__main__":
