@@ -1,5 +1,6 @@
 import os
 import time
+import logging
 
 import mrcnn.model as modellib
 
@@ -7,10 +8,13 @@ from img_sgm_ml.model.utils import download_weights
 
 
 class MaskRCNNModel():
-    def __init__(self, config):
+    def __init__(self, config, path=None):
         self.config = config
 
-        self.model_dir_path = os.path.abspath("./img_sgm_ml/rsc/checkpoints/")
+        if path is None:
+            self.model_dir_path = os.path.abspath("./img_sgm_ml/rsc/checkpoints/")
+        else:
+            self.model_dir_path = path
 
         # Create Model
         self.model = modellib.MaskRCNN("inference", config, self.model_dir_path)
@@ -91,10 +95,14 @@ class MaskRCNNModel():
         # Files in the model directory
         model_files = [file for file in os.listdir(self.model_dir_path)
                        if file.endswith(".h5")]
+
         if 0 < len(model_files) and not os.getenv("COCO"):
-            model_path = self.model.find_last()[0]
-            self.train_model.load_weights(model_path, by_name=True)
-            return True
+            # Search model
+            model_path = self.model.find_last()
+            if train:
+                # Load training weight
+                self.train_model.load_weights(model_path, by_name=True)
+                return True
         else:
             model_path = coco_path
             if train:
@@ -111,5 +119,6 @@ class MaskRCNNModel():
             # Load weights
             self.model.load_weights(model_path, by_name=True)
             self.model_path = model_path
-
+        elif self.model_path is "":
+            return False
         return True

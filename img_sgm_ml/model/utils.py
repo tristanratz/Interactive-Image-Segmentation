@@ -20,13 +20,24 @@ def transform_url(url):
 
 def download_weights():
     """Downloads coco model if not already downloaded"""
-    weights_path = os.path.join(
-        os.path.dirname(
+    if os.getenv("DOCKER"):
+        weights_path = os.path.join(
             os.path.dirname(
-                os.path.realpath(__file__)
-            )
-        ),
-        "rsc/mask_rcnn_coco.h5")
+                os.path.dirname(
+                    os.path.realpath(__file__)
+                )
+            ),
+            "rsc/mask_rcnn_coco.h5")
+    else:
+        weights_path = os.path.join(
+            os.path.dirname(
+                os.path.dirname(
+                    os.path.dirname(
+                        os.path.realpath(__file__)
+                    )
+                )
+            ),
+            "rsc/mask_rcnn_coco.h5")
     if not os.path.exists(weights_path):
         utils.download_trained_weights(weights_path)
 
