@@ -7,6 +7,9 @@ img_sgm/completions
 img_sgm/upload
 img_sgm/predictions
 rsc
+!./rsc/demo.png
+!./rsc/Trainset.zip
+!./rsc/checkpoints/mask_rcnn_1610552427.313373.h5
 img_sgm/config.xml
 img_sgm/source.json
 logs
