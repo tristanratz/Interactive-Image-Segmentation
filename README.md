@@ -6,14 +6,14 @@ Create image segmentations and get on the fly predictions for the dataset your l
 It was build with the help of Matterports MaskRCNN implementation and is meant to help you label images.
 After configuring the program for your needs and labeling a certain amount of images, the program should start to label images itself.
 
-![Demo Image](https://github.com/tristanratz/Label-Studio-image-segmentation-ML-Module/blob/main/rsc/demo.png?raw=true)
+![Demo Image](https://github.com/tristanratz/Label-Studio-image-segmentation-ML-Module/blob/main/rsc/user_interface.png?raw=true)
 
 ## Installation
 
 First clone the project
 
 ```bash
-git clone --recurse-submodules -j8 git://github.com/tristanratz/bar.git
+git clone --recurse-submodules -j8 https://github.com/tristanratz/Interactive-Image-Segmentation.git
 ```
 
 Make sure you have docker and docker-compose installed to start the ml module.
@@ -66,6 +66,13 @@ If you want to use a diffrent model for image segmentation you may have to rewri
 ```img_sgm_ml/model/dataset.py``` classes. 
 
 This project contains code to transform the Label Studio format into the Matterport/MaskRCNN format.
+
+## Dataset and pretrained model
+
+Under ```rsc``` resides a dataset consisting out of ballons, it is devided into three subsets, which were used to test this tool.
+The first dataset consists out of 70 labeled images of balloons, the second dataset are additional 70 images of balloons to test semi-automatic labeling, and the last set consists out of 10 unrelated images.
+The model which resulted out of the testing can be found under ```rsc/checkpoints```.
+It was trained 5 epochs on the images of the first dataset.
 
 ## Citation
 ```bibtex
